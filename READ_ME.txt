@@ -28,6 +28,7 @@ Part C:
 
  4) I am not clear about this step. Are you expecting me to host this application in some third party vendors like heroku etc.
 
- 5 and 6)->Routing and Validation can be added and improved.
+ 5 and 6)->Clearly using a framework help a lot in improving security and modularity.
+         ->Routing and Validation can be added and improved.
          ->May be using MongoDB might help in scaling chat system.
          ->Password can be hashed and stored during registration.
