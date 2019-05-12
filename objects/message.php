@@ -27,7 +27,7 @@ class Message{
                 SET
                 sender_id=:sender_id,
                 receiver_id=:receiver_id,
-                message=:message";
+                message=:message, epoch=:epoch";
 
         // prepare query
         $stmt = $this->conn->prepare($query);
@@ -40,6 +40,7 @@ class Message{
         $stmt->bindParam(":sender_id", $this->sender_user_id);
         $stmt->bindParam(":receiver_id", $this->receiver_user_id);
         $stmt->bindParam(":message", $this->message);
+        $stmt->bindParam(":epoch", $timeNow);
 
         // execute query
         if($stmt->execute()){
@@ -50,7 +51,7 @@ class Message{
     //view messages method
     function view_messages($user_id_a, $user_id_b){
         // query to select messages
-        $query = "SELECT *
+        $query = "SELECT message_id, sender_id, message, epoch
               FROM
                   " . $this->table_name . "
               WHERE

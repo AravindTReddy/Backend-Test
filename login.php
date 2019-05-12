@@ -1,10 +1,9 @@
 <?php
 
-session_start();
 // include database and object files
 include_once 'config/database.php';
 include_once 'objects/user.php';
-
+//request method validation
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 // get database connection
@@ -13,13 +12,17 @@ $db = $database->getConnection();
 
 // prepare user object
 $user = new User($db);
-// set ID property of user to be edited
 
 $data = json_decode(file_get_contents("php://input"));
+
+if(!empty($data)){
+
+$valid = $user->validatelogin($data->email, $data->password);
+
+if(empty($valid)){
 // set user property values
 $user->email = $data->email;
 $user->password = $data->password;
-
 
 // read the details of user to be edited
 $stmt = $user->login();
@@ -38,10 +41,25 @@ else{
     $user_arr=array(
         "error_code" => 101,
         "error_title" => "Login Failure",
-        "error_message" => "Invalid email or Password!",
+        "error_message" => "Wrong email or Password combination!",
     );
 }
-
+}
+else {
+  $user_arr=array(
+      "error_code" => 102,
+      "error_title" => "Login Failure",
+      "error_message" => $valid,
+  );
+}
+}
+else{
+  $user_arr=array(
+    "error_code" => 103,
+    "error_title" => "No Data Exception",
+    "error_message" => "Please provide me some data and try again.",
+  );
+}
 // make it json format
 print_r(json_encode($user_arr));
 }
@@ -49,7 +67,7 @@ else {
   $error_arr=array(
       "error_code" => 500,
       "error_title" => "Wrong Request method",
-      "error_message" => "I am POST friendly! Sorry GET",
+      "error_message" => "I am POST friendly! Sorry",
   );
   print_r(json_encode($error_arr));
 }

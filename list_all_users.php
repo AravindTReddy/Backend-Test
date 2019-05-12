@@ -1,6 +1,5 @@
 <?php
 
-session_start();
 // include database and object files
 include_once 'config/database.php';
 include_once 'objects/user.php';
@@ -15,7 +14,8 @@ $user = new User($db);
 // set ID property of user to be edited
 
 $data = json_decode(file_get_contents("php://input"));
-
+//validating user data
+if(!empty($data)){
 $user->id = $data->requester_user_id;
 
 //validating the user
@@ -26,24 +26,29 @@ if($stmt){
        "users" => $stmt
    );
 }
-// read the details of user to be edited
 else{
   $user_arr=array(
-    "error_code" => 500,
+    "error_code" => 301,
     "error_title" => "Invalid Id",
     "error_message" => "The requested Id is not found, Please try again.",
   );
 }
-print_r(json_encode($user_arr));
-// make it json format
+}
+else{
+  $user_arr=array(
+      "error_code" => 103,
+      "error_title" => "No Data Exception",
+      "error_message" => "Please provide me some data and try again.",
+  );
+}
 }
 else {
-  $error_arr=array(
-      "error_code" => 100,
+  $user_arr=array(
+      "error_code" => 500,
       "error_title" => "Wrong Request method",
-      "error_message" => "I am GET friendly! Sorry POST",
+      "error_message" => "I am GET friendly! Sorry",
   );
-  print_r(json_encode($error_arr));
 }
-
+// make it json format
+print_r(json_encode($user_arr));
 ?>

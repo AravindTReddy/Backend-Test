@@ -19,16 +19,17 @@ class User{
     }
     // register method
     function register(){
-
-        if($this->isAlreadyExist()){
-            return false;
-        }
+      //email validation
+      if($this->isAlreadyExist()){
+          return 101;
+      }
+      else{
+        try{
         // query to insert record
         $query = "INSERT INTO
                     " . $this->table_name . "
                 SET
                     first_name=:first_name, last_name=:last_name, password=:password, email=:email";
-
         // prepare query
         $stmt = $this->conn->prepare($query);
 
@@ -46,10 +47,21 @@ class User{
 
         // execute query
         if($stmt->execute()){
-            $this->id = $this->conn->lastInsertId();
-            return true;
+          $this->id = $this->conn->lastInsertId();
+          return 200;
         }
-        return false;
+        else{
+            return 100;
+        }
+       }
+      catch(PDOException $e){
+        $user_arr=array(
+          "error_code" => 102,
+          "error_title" => "Registration Failed",
+          "error_message" => $e->getMessage()
+        );
+        }
+      }
     }
     // login method
     function login(){
@@ -65,7 +77,7 @@ class User{
         $stmt->execute();
         return $stmt;
     }
-    //email validation method
+    //email validation methods
     function isAlreadyExist(){
         $query = "SELECT *
             FROM
@@ -103,7 +115,7 @@ class User{
     }
     //list users method
     function listUsers($id){
-        $query = "SELECT *
+        $query = "SELECT id, email, first_name, last_name
             FROM
                 " . $this->table_name . "
             WHERE
@@ -118,6 +130,36 @@ class User{
        else{
            return false;
        }
+    }
+    //basic input validations
+    function validateInput($first_name, $last_name, $email, $password){
+      $error = [];
+      if($first_name=="") {
+            array_push($error, "provide first name !");
+         }
+      if($last_name=="") {
+            array_push($error, "provide last name !");
+         }
+      if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            array_push($error, 'Please enter a valid email address !');
+         }
+      if($password=="") {
+            array_push($error, "provide password !");
+         }
+      if(strlen($password) < 6){
+            array_push($error,"Password must be atleast 6 characters");
+         }
+         return $error;
+    }
+    function validatelogin($email, $password){
+      $error = [];
+      if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            array_push($error, 'Please enter a valid email address !');
+         }
+      if($password=="") {
+            array_push($error, "provide password !");
+         }
+         return $error;
     }
 
 }
